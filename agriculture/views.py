@@ -1,3 +1,6 @@
+import datetime
+import json
+
 from django.shortcuts import render
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from .models import ProfilUtilisateur, ADMINISTRATEUR, AGRICULTEUR_TECHNICIEN, Culture, Unite, Plantation, Suivi
@@ -7,7 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum, F
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import  messages
 from .models import Parcelle, ADMINISTRATEUR, AGRICULTEUR_TECHNICIEN, Corbeille
@@ -32,8 +35,69 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'agriculture/dashboard.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['parcelles_libres'] = 5
-        context['plantations_total'] = 20
+
+        total_parcelles = Parcelle.objects.filter(parcelle_supprime=False).count()
+        parcelles_disponibles = Parcelle.objects.filter(parcelle_supprime=False, disponible=True).count()
+        parcelles_occupées = total_parcelles - parcelles_disponibles
+
+        context['total_parcelles'] = total_parcelles
+        context['parcelles_disponibles'] = parcelles_disponibles
+        context['parcelles_occupées'] = parcelles_occupées
+
+        plantations_par_culture = Plantation.objects.filter(plantation_supprime=False).values(
+            'ID_culture__nom_culture'
+        ).annotate(
+            total=Count('ID_culture')
+        ).order_by('-total')
+
+        context['chart_cultures_labels'] = [item['ID_culture__nom_culture'] for item in plantations_par_culture]
+        context['chart_cultures_data'] = [item['total'] for item in plantations_par_culture]
+
+        plantations_par_parcelle = Plantation.objects.filter(plantation_supprime=False).values(
+            'ID_parcelle__nom_parcelle'
+        ).annotate(
+            surface_occupée=Sum('ID_parcelle__superficie_parcelle')
+        ).order_by('-surface_occupée')
+
+        context['chart_parcelles_labels'] = [item['ID_parcelle__nom_parcelle'] for item in plantations_par_parcelle]
+        context['chart_parcelles_data'] = [float(item['surface_occupée']) for item in plantations_par_parcelle]
+
+
+        plantations = Plantation.objects.filter(plantation_supprime=False)
+        suivis = Suivi.objects.filter(suivi_supprime=False)
+
+        calendar_events = []
+
+        for p in plantations:
+            calendar_events.append({
+                'title': f"PLANTÉ: {p.ID_culture.nom_culture} ({p.ID_parcelle.nom_parcelle})",
+                'start': p.date_plantation_terre.isoformat(),
+                'allDay': True,
+                'color': '#007bff'
+            })
+
+            if p.ID_culture.cycle_culture:
+                recolte_date = p.date_plantation_terre + datetime.timedelta(days=p.ID_culture.cycle_culture)
+
+                calendar_events.append({
+                    'title': f"RÉCOLTE ESTIMÉE: {p.ID_culture.nom_culture}",
+                    'start': recolte_date.isoformat(),
+                    'allDay': True,
+                    'color': '#28a745'
+                })
+
+        for s in suivis:
+            calendar_events.append({
+                'title': f"SUIVI: {s.details_suivi} ({s.ID_plantation.ID_parcelle.nom_parcelle})",
+                'start': s.date_suivi.isoformat(),
+                'allDay': True,
+                'color': '#ffc107',
+            })
+
+        context['calendar_events'] = json.dumps(calendar_events)
+
+        context['suivis_recents'] = Suivi.objects.filter(suivi_supprime=False).order_by('-date_suivi')[:5]
+
         return context
 
 class ParcelleListView(LoginRequiredMixin, ListView):

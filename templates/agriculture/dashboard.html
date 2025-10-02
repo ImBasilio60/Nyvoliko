@@ -2,67 +2,123 @@
 {% load static %}
 
 {% block title %}Tableau de Bord{% endblock %}
-{% block body_class %}dashboard-page{% endblock %}
+
+{% block extra_css %}
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css' rel='stylesheet' />
+<style>
+    #calendar {
+        max-height: 600px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="row mb-4">
     <div class="col-12">
-        <h1 class="h2 mb-0">Tableau de Bord Agricole <i class="fas fa-tachometer-alt"></i></h1>
-        <p class="text-muted">Bienvenue, {{ user.username }}. Vue d'ensemble de l'exploitation.</p>
+        <h1 class="h3 mb-0">Tableau de Bord <i class="fas fa-chart-line text-success"></i></h1>
+        <p class="text-muted">Vue d'ensemble et statistiques rapides de l'exploitation.</p>
     </div>
 </div>
 
-<div class="row mb-4">
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card text-white bg-info">
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card border-start border-primary border-4 shadow-sm h-100 py-2">
             <div class="card-body">
-                <h5 class="card-title"><i id="weather-icon" class="fas fa-sync-alt fa-spin"></i> Météo Actuelle</h5>
-                <p class="mb-0 fs-4" id="weather-location">Chargement...</p>
-                <small id="weather-temp">Veuillez autoriser la géolocalisation</small><br>
-                <small id="weather-description"></small>
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <i class="fas fa-boxes fa-2x text-primary"></i>
+                    </div>
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-primary text-uppercase mb-1">
+                            Parcelles Disponibles
+                        </div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ parcelles_disponibles }} / {{ total_parcelles }}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card text-white bg-success">
+    <div class="col-md-4 mb-4">
+        <div class="card border-start border-warning border-4 shadow-sm h-100 py-2">
             <div class="card-body">
-                <h5 class="card-title">Parcelles Disponibles</h5>
-                <p class="mb-0 fs-2">{{ parcelles_libres }}</p>
-                <small>Sur 10 au total</small>
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <i class="fas fa-map-marked-alt fa-2x text-warning"></i>
+                    </div>
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-warning text-uppercase mb-1">
+                            Parcelles Occupées
+                        </div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ parcelles_occupées }} / {{ total_parcelles }}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card text-white bg-warning">
+    <div class="col-md-4 mb-4">
+        <div class="card border-start border-success border-4 shadow-sm h-100 py-2">
             <div class="card-body">
-                <h5 class="card-title">Plantations Actives</h5>
-                <p class="mb-0 fs-2">{{ plantations_total }}</p>
-                <small>Nombre de cycles en cours</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card text-white bg-danger">
-            <div class="card-body">
-                <h5 class="card-title">Alertes Critiques</h5>
-                <p class="mb-0 fs-2">0</p>
-                <small>Traitements en retard</small>
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <i class="fas fa-seedling fa-2x text-success"></i>
+                    </div>
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-success text-uppercase mb-1">
+                            Plantations Actives
+                        </div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ parcelles_occupées }} / {{ total_parcelles }}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <div class="row">
-    <div class="col-lg-7 mb-4">
+    <div class="col-lg-6 mb-4">
         <div class="card shadow-sm">
-            <div class="card-header"><i class="fas fa-chart-bar"></i> Plantations par Culture</div>
-            <div class="card-body"><canvas id="chartPlantationCulture"></canvas></div>
+            <div class="card-header bg-light">Plantations par Culture</div>
+            <div class="card-body">
+                <canvas id="cultureChart"></canvas>
+            </div>
         </div>
     </div>
-    <div class="col-lg-5 mb-4">
+    <div class="col-lg-6 mb-4">
         <div class="card shadow-sm">
-            <div class="card-header"><i class="fas fa-calendar-alt"></i> Calendrier des Suivis</div>
-            <div class="card-body"><div id="fullCalendar"></div></div>
+            <div class="card-header bg-light">Surface Totale par Parcelle (m²)</div>
+            <div class="card-body">
+                <canvas id="parcelleChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">Calendrier des Plantations et Suivis</div>
+            <div class="card-body">
+                <div id='calendar'></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">Suivis Récents <i class="fas fa-history"></i></div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for suivi in suivis_recents %}
+                    <li class="list-group-item">
+                        <small class="text-muted">{{ suivi.date_suivi|date:"d/m/Y" }}</small>
+                        <p class="mb-0 fw-bold">{{ suivi.details_suivi }}</p>
+                        <small>sur {{ suivi.ID_plantation.ID_parcelle.nom_parcelle }} ({{ suivi.ID_plantation.ID_culture.nom_culture }})</small>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center text-muted">Aucun suivi récent.</li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
     </div>
 </div>
@@ -70,6 +126,101 @@
 {% endblock %}
 
 {% block extra_js %}
-<script type="module" src="{% static 'js/weather.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // CHARTS DATA FROM DJANGO CONTEXT
+        const cultureLabels = {{ chart_cultures_labels|safe }};
+        const cultureData = {{ chart_cultures_data|safe }};
+        const parcelleLabels = {{ chart_parcelles_labels|safe }};
+        const parcelleData = {{ chart_parcelles_data|safe }};
+
+        function generateColors(count) {
+            const colors = [];
+            for (let i = 0; i < count; i++) {
+                const r = Math.floor(Math.random() * 200);
+                const g = Math.floor(Math.random() * 200);
+                const b = Math.floor(Math.random() * 200);
+                colors.push(`rgba(${r}, ${g}, ${b}, 0.7)`);
+            }
+            return colors;
+        }
+
+        if (cultureLabels.length > 0) {
+            const cultureChartCtx = document.getElementById('cultureChart').getContext('2d');
+            new Chart(cultureChartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: cultureLabels,
+                    datasets: [{
+                        data: cultureData,
+                        backgroundColor: generateColors(cultureData.length),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Nombre de Plantations par Type de Culture'
+                        }
+                    }
+                }
+            });
+        }
+
+        if (parcelleLabels.length > 0) {
+            const parcelleChartCtx = document.getElementById('parcelleChart').getContext('2d');
+            new Chart(parcelleChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: parcelleLabels,
+                    datasets: [{
+                        label: 'Superficie Occupée (m²)',
+                        data: parcelleData,
+                        backgroundColor: 'rgba(255, 193, 7, 0.8)',
+                        borderColor: 'rgba(255, 193, 7, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+        const initialEvents = JSON.parse('{{ calendar_events|safe }}');
+
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'fr',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,listWeek'
+            },
+            events: initialEvents,
+            eventDisplay: 'block',
+            eventClick: function(info) {
+                alert('Événement : ' + info.event.title + '\nDate : ' + info.event.start.toLocaleDateString('fr-FR'));
+            }
+        });
+
+        calendar.render();
+    });
+</script>
 {% endblock %}
