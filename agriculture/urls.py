@@ -22,6 +22,12 @@ urlpatterns = [
     path('unites/modifier/<int:pk>/', views.UniteUpdateView.as_view(), name='unite_update'),
     path('unites/supprimer/<int:pk>/', views.UniteDeleteView.as_view(), name='unite_delete'),
 
+    #PLANTATIONS
+    path('plantations/', views.PlantationListView.as_view(), name='plantation_list'),
+    path('plantations/ajouter/', views.PlantationCreateView.as_view(), name='plantation_create'),
+    path('plantations/modifier/<int:pk>/', views.PlantationUpdateView.as_view(), name='plantation_update'),
+    path('plantations/supprimer/<int:pk>/', views.PlantationDeleteView.as_view(), name='plantation_delete'),
+
     # CORBEILLE
     path('corbeille/', views.CorbeilleListView.as_view(), name='corbeille_list'),
     path('corbeille/restaurer/<str:table_name>/<int:pk>/', views.restaurer_element, name='restaurer_element'),

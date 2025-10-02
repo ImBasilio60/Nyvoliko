@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
-from .models import ProfilUtilisateur, ADMINISTRATEUR, AGRICULTEUR_TECHNICIEN, Culture, Unite
+from .models import ProfilUtilisateur, ADMINISTRATEUR, AGRICULTEUR_TECHNICIEN, Culture, Unite, Plantation
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -12,6 +12,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import  messages
 from .models import Parcelle, ADMINISTRATEUR, AGRICULTEUR_TECHNICIEN, Corbeille
 
+from .forms import PlantationForm
 # Create your views here.
 class AdminRequiredMixin(UserPassesTestMixin):
     def test_func(self):
@@ -114,7 +115,9 @@ def restaurer_element(request, table_name, pk):
     elif table_name == 'Culture':
         model = Culture
         champ_supprime = 'culture_supprime'
-    #elif table_name == 'Plantation':
+    elif table_name == 'Plantation':
+        model = Plantation
+        champ_supprime = 'plantation_supprime'
     else:
         messages.error(request, f"Type de donnée {table_name} inconnu pour la restauration.")
         return redirect('corbeille_list')
@@ -245,3 +248,77 @@ class UniteDeleteView(AdminRequiredMixin, DeleteView):
         except models.ProtectedError:
             messages.error(request,"Impossible de supprimer cette unité car elle est utilisée dans une ou plusieurs plantations.")
             return redirect(self.success_url)
+
+
+class PlantationListView(AgriculteurTechRequiredMixin, ListView):
+    model = Plantation
+    template_name = 'agriculture/plantation_list.html'
+    context_object_name = 'plantations'
+    paginate_by = 5
+
+    def get_queryset(self):
+        queryset = Plantation.objects.filter(plantation_supprime=False).order_by('-date_plantation_terre')
+
+        parcelle_id = self.request.GET.get('parcelle')
+        culture_id = self.request.GET.get('culture')
+
+        if parcelle_id:
+            queryset = queryset.filter(ID_parcelle_id=parcelle_id)
+        if culture_id:
+            queryset = queryset.filter(ID_culture_id=culture_id)
+
+        query = self.request.GET.get('q')
+        if query:
+            queryset = queryset.filter(
+                Q(ID_parcelle__nom_parcelle__icontains=query) |
+                Q(ID_culture__nom_culture__icontains=query)
+            )
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['parcelles'] = Parcelle.objects.filter(parcelle_supprime=False)
+        context['cultures'] = Culture.objects.filter(culture_supprime=False)
+        return context
+
+class PlantationCreateView(AgriculteurTechRequiredMixin, CreateView):
+    model = Plantation
+    form_class = PlantationForm
+    template_name = 'agriculture/plantation_form.html'
+    success_url = reverse_lazy('plantation_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, "La nouvelle plantation a été enregistrée avec succès.")
+        return super().form_valid(form)
+
+class PlantationUpdateView(AgriculteurTechRequiredMixin, UpdateView):
+    model = Plantation
+    form_class = PlantationForm
+    template_name = 'agriculture/plantation_form.html'
+    success_url = reverse_lazy('plantation_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, "La plantation a été modifiée avec succès.")
+        return super().form_valid(form)
+
+class PlantationDeleteView(AgriculteurTechRequiredMixin, DeleteView):
+    model = Plantation
+    success_url = reverse_lazy('plantation_list')
+
+    def post(self, request, *args, **kwargs):
+        plantation = self.get_object()
+        parcelle = plantation.ID_parcelle
+
+        plantation.plantation_supprime = True
+        plantation.save()
+
+        parcelle.disponible = True
+        parcelle.save()
+
+        Corbeille.objects.create(
+            nom_table='Plantation',
+            ID_enregistrement=plantation.pk
+        )
+        messages.warning(request, f"La plantation sur {parcelle.nom_parcelle} a été déplacée dans la corbeille.")
+        return redirect(self.success_url)
+

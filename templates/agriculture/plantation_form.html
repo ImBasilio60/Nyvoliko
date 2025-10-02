@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if object %}Modifier la Plantation{% else %}Ajouter une Plantation{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <h1 class="h3 mb-4">
+            {% if object %}
+                <i class="fas fa-edit text-info"></i> Modifier la Plantation existante
+            {% else %}
+                <i class="fas fa-plus-circle text-success"></i> Enregistrer une Nouvelle Plantation
+            {% endif %}
+        </h1>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}:</label>
+                            
+                            {{ field.as_widget }}
+                            
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            {% if object %}Enregistrer les Modifications{% else %}Créer la Plantation{% endif %}
+                        </button>
+                        <a href="{% url 'plantation_list' %}" class="btn btn-outline-secondary">Annuler et Retourner à la Liste</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.card-body input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), .card-body textarea').forEach(function(element) {
+            if (!element.classList.contains('form-control')) {
+                element.classList.add('form-control');
+            }
+        });
+
+        document.querySelectorAll('.card-body select').forEach(function(element) {
+             if (!element.classList.contains('form-select')) {
+                element.classList.add('form-select');
+            }
+        });
+    });
+</script>
+{% endblock %}
