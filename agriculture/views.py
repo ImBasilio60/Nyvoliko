@@ -3,6 +3,15 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from .models import ProfilUtilisateur, ADMINISTRATEUR, AGRICULTEUR_TECHNICIEN
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import  messages
+from .models import Parcelle, ADMINISTRATEUR, AGRICULTEUR_TECHNICIEN, Corbeille
+
 # Create your views here.
 class AdminRequiredMixin(UserPassesTestMixin):
     def test_func(self):
@@ -25,3 +34,104 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context['parcelles_libres'] = 5
         context['plantations_total'] = 20
         return context
+
+class ParcelleListView(LoginRequiredMixin, ListView):
+    model = Parcelle
+    template_name = 'agriculture/parcelle_list.html'
+    context_object_name = 'parcelles'
+    paginate_by = 5
+
+    def get_queryset(self):
+        queryset = Parcelle.objects.filter(parcelle_supprime=False).order_by('nom_parcelle')
+
+        query = self.request.GET.get('q')
+        if query:
+            queryset = queryset.filter(
+                Q(nom_parcelle__icontains=query) |
+                Q(type_sol__icontains=query) |
+                Q(superficie_parcelle__icontains=query)
+            )
+
+        statut = self.request.GET.get('statut')
+        if statut == 'disponible':
+            queryset = queryset.filter(disponible=True)
+        elif statut == 'occupée':
+            queryset = queryset.filter(disponible=False)
+
+        return queryset
+
+class ParcelleCreateView(AdminRequiredMixin, CreateView):
+    model = Parcelle
+    template_name = 'agriculture/parcelle_form.html'
+    fields = ['nom_parcelle', 'superficie_parcelle', 'type_sol', 'disponible']
+    success_url = reverse_lazy('parcelle_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, "La parcelle a été ajoutée avec succès.")
+        return super().form_valid(form)
+
+class ParcelleUpdateView(AdminRequiredMixin, UpdateView):
+    model = Parcelle
+    template_name = 'agriculture/parcelle_form.html'
+    fields = ['nom_parcelle', 'superficie_parcelle', 'type_sol', 'disponible']
+    success_url = reverse_lazy('parcelle_list')
+
+    def form_valid(self, form):
+        messages.info(self.request, "La parcelle a été modifiée avec succès.")
+        return super().form_valid(form)
+
+class ParcelleDeleteView(AdminRequiredMixin, DeleteView):
+    model = Parcelle
+    success_url = reverse_lazy('parcelle_list')
+
+    def post(self, request, *args, **kwargs):
+        parcelle = self.get_object()
+
+        parcelle.parcelle_supprime = True
+        parcelle.save()
+
+        Corbeille.objects.create(
+            nom_table='Parcelle',
+            ID_enregistrement=parcelle.pk
+        )
+
+        messages.warning(request, f"La parcelle '{parcelle.nom_parcelle}' a été déplacée dans la corbeille.")
+        return redirect(self.success_url)
+
+class CorbeilleListView(AdminRequiredMixin, ListView):
+    model = Corbeille
+    template_name = 'agriculture/corbeille_list.html'
+    context_object_name = 'elements_supprimes'
+
+def restaurer_element(request, table_name, pk):
+    if not request.user.is_authenticated or request.user.profilutilisateur.role != ADMINISTRATEUR:
+        messages.error(request, "Permission refusée.")
+        return redirect('corbeille_list')
+
+    if table_name == 'Parcelle':
+        model = Parcelle
+        champ_supprime = 'parcelle_supprime'
+    # elif table_name == 'Culture':
+    #     model = Culture
+    #     champ_supprime = 'culture_supprime'
+    # ... autres tables ...
+    else:
+        messages.error(request, f"Type de donnée {table_name} inconnu pour la restauration.")
+        return redirect('corbeille_list')
+
+    try:
+        element = get_object_or_404(model, pk=pk)
+
+        setattr(element, champ_supprime, False)
+        element.save()
+
+        corbeille_item = Corbeille.objects.filter(nom_table=table_name, ID_enregistrement=pk).first()
+        if corbeille_item:
+            corbeille_item.delete()
+
+        messages.success(request, f"L'élément {table_name} restauré avec succès.")
+
+    except Exception as e:
+        messages.error(request, f"Erreur lors de la restauration: {e}")
+
+    return redirect('corbeille_list')

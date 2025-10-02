@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Liste des Parcelles{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h1 class="h3 mb-0">Gestion des Parcelles <i class="fas fa-th-large text-success"></i></h1>
+        {% if user.is_superuser or user.profilutilisateur.role == 1 %}
+        <a href="{% url 'parcelle_create' %}" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Ajouter Parcelle</a>
+        {% endif %}
+    </div>
+</div>
+
+<form method="GET" action="{% url 'parcelle_list' %}" class="row g-3 mb-4 align-items-end bg-light p-3 rounded shadow-sm">
+    <div class="col-md-5 col-12">
+        <label for="id_q" class="form-label visually-hidden">Recherche</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <input type="text" name="q" id="id_q" class="form-control" placeholder="Nom, superficie, ou type de sol..." value="{{ request.GET.q|default:'' }}">
+        </div>
+    </div>
+    
+    <div class="col-md-4 col-12">
+        <label for="id_statut" class="form-label visually-hidden">Statut</label>
+        <select name="statut" id="id_statut" class="form-select">
+            <option value="">-- Filtrer par Statut --</option>
+            <option value="disponible" {% if request.GET.statut == 'disponible' %}selected{% endif %}>Disponible</option>
+            <option value="occupée" {% if request.GET.statut == 'occupée' %}selected{% endif %}>Occupée</option>
+        </select>
+    </div>
+
+    <div class="col-md-3 col-12 d-flex justify-content-end">
+        <button type="submit" class="btn btn-primary me-2"><i class="fas fa-filter"></i> Filtrer/Rechercher</button>
+        <a href="{% url 'parcelle_list' %}" class="btn btn-outline-secondary"><i class="fas fa-times"></i> Réinitialiser</a>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-success">
+            <tr>
+                <th>Nom</th>
+                <th>Superficie (ha)</th>
+                <th>Type de Sol</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for parcelle in parcelles %}
+            <tr>
+                <td>{{ parcelle.nom_parcelle }}</td>
+                <td>{{ parcelle.superficie_parcelle }}</td>
+                <td>{{ parcelle.type_sol|default:'Non spécifié' }}</td>
+                <td>
+                    {% if parcelle.disponible %}
+                        <span class="badge bg-success">Disponible</span>
+                    {% else %}
+                        <span class="badge bg-danger">Occupée</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.is_superuser or user.profilutilisateur.role == 1 %}
+                    <a href="{% url 'parcelle_update' pk=parcelle.pk %}" class="btn btn-sm btn-outline-info me-1" title="Modifier"><i class="fas fa-edit"></i></a>
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ parcelle.pk }}" title="Supprimer">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    {% else %}
+                    <span class="text-muted small">Non autorisé</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <div class="modal fade" id="deleteModal-{{ parcelle.pk }}" tabindex="-1" aria-labelledby="deleteModalLabel-{{ parcelle.pk }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel-{{ parcelle.pk }}">Confirmer la Suppression</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Êtes-vous sûr de vouloir déplacer la parcelle <strong>{{ parcelle.nom_parcelle }}</strong> vers la corbeille ?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <form method="POST" action="{% url 'parcelle_delete' pk=parcelle.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Supprimer (Corbeille)</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center text-muted">Aucune parcelle trouvée selon les critères.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if is_paginated %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q|default:'' }}&statut={{ request.GET.statut|default:'' }}">Précédent</a></li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Précédent</span></li>
+            {% endif %}
+
+            {% for i in paginator.page_range %}
+                {% if page_obj.number == i %}
+                    <li class="page-item active" aria-current="page"><span class="page-link">{{ i }}</span></li>
+                {% else %}
+                    <li class="page-item"><a class="page-link" href="?page={{ i }}&q={{ request.GET.q|default:'' }}&statut={{ request.GET.statut|default:'' }}">{{ i }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q|default:'' }}&statut={{ request.GET.statut|default:'' }}">Suivant</a></li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Suivant</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+{% endblock %}
