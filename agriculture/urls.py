@@ -28,6 +28,11 @@ urlpatterns = [
     path('plantations/modifier/<int:pk>/', views.PlantationUpdateView.as_view(), name='plantation_update'),
     path('plantations/supprimer/<int:pk>/', views.PlantationDeleteView.as_view(), name='plantation_delete'),
 
+    #SUIVI
+    path('plantations/<int:pk_plantation>/suivis/', views.SuiviListView.as_view(), name='suivi_list'),
+    path('suivis/modifier/<int:pk>/', views.SuiviUpdateView.as_view(), name='suivi_update'),
+    path('suivis/supprimer/<int:pk>/', views.SuiviDeleteView.as_view(), name='suivi_delete'),
+
     # CORBEILLE
     path('corbeille/', views.CorbeilleListView.as_view(), name='corbeille_list'),
     path('corbeille/restaurer/<str:table_name>/<int:pk>/', views.restaurer_element, name='restaurer_element'),

@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
-from .models import ProfilUtilisateur, ADMINISTRATEUR, AGRICULTEUR_TECHNICIEN, Culture, Unite, Plantation
+from .models import ProfilUtilisateur, ADMINISTRATEUR, AGRICULTEUR_TECHNICIEN, Culture, Unite, Plantation, Suivi
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -118,6 +118,9 @@ def restaurer_element(request, table_name, pk):
     elif table_name == 'Plantation':
         model = Plantation
         champ_supprime = 'plantation_supprime'
+    elif table_name == 'Suivi':
+        model = Suivi
+        champ_supprime = 'suivi_supprime'
     else:
         messages.error(request, f"Type de donnée {table_name} inconnu pour la restauration.")
         return redirect('corbeille_list')
@@ -322,3 +325,67 @@ class PlantationDeleteView(AgriculteurTechRequiredMixin, DeleteView):
         messages.warning(request, f"La plantation sur {parcelle.nom_parcelle} a été déplacée dans la corbeille.")
         return redirect(self.success_url)
 
+class SuiviListView(AgriculteurTechRequiredMixin, CreateView, ListView):
+    model = Suivi
+    fields = ['details_suivi', 'ID_plantation']
+    template_name = 'agriculture/suivi_list.html'
+    context_object_name = 'suivis'
+    paginate_by = 5
+
+    def get_initial(self):
+        initial = super().get_initial()
+
+        plantation_pk = self.kwargs.get('pk_plantation')
+        if plantation_pk:
+            initial['ID_plantation'] = plantation_pk
+        return initial
+
+    def get_queryset(self):
+        plantation_pk = self.kwargs.get('pk_plantation')
+        if plantation_pk:
+            self.plantation = get_object_or_404(Plantation, pk=plantation_pk, plantation_supprime=False)
+            return Suivi.objects.filter(ID_plantation=self.plantation, suivi_supprime=False).order_by('-date_suivi')
+        return Suivi.objects.none()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if hasattr(self, 'plantation'):
+            context['plantation'] = self.plantation
+        return context
+
+    def form_valid(self, form):
+        if not form.instance.ID_plantation:
+            plantation_pk = self.kwargs.get('pk_plantation')
+            form.instance.ID_plantation = get_object_or_404(Plantation, pk=plantation_pk)
+
+        messages.success(self.request, "Le suivi a été ajouté avec succès.")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('suivi_list', kwargs={'pk_plantation': self.object.ID_plantation.pk})
+
+class SuiviUpdateView(AgriculteurTechRequiredMixin, UpdateView):
+    model = Suivi
+    fields = ['details_suivi']
+    template_name = 'agriculture/suivi_form.html'
+
+    def get_success_url(self):
+        messages.info(self.request, "Le suivi a été modifié avec succès.")
+        return reverse_lazy('suivi_list', kwargs={'pk_plantation': self.object.ID_plantation.pk})
+
+class SuiviDeleteView(AgriculteurTechRequiredMixin, DeleteView):
+    model = Suivi
+
+    def post(self, request, *args, **kwargs):
+        suivi = self.get_object()
+        success_url = reverse_lazy('suivi_list', kwargs={'pk_plantation': suivi.ID_plantation.pk})
+
+        suivi.suivi_supprime = True
+        suivi.save()
+
+        Corbeille.objects.create(
+            nom_table='Suivi',
+            ID_enregistrement=suivi.pk,
+        )
+        messages.warning(request, "Le suivi a été déplacé dans la corbeille.")
+        return redirect(success_url)
