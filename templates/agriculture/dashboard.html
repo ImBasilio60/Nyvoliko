@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tableau de Bord{% endblock %}
+{% block body_class %}dashboard-page{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-0">Tableau de Bord Agricole <i class="fas fa-tachometer-alt"></i></h1>
+        <p class="text-muted">Bienvenue, {{ user.username }}. Vue d'ensemble de l'exploitation.</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title"><i id="weather-icon" class="fas fa-sync-alt fa-spin"></i> Météo Actuelle</h5>
+                <p class="mb-0 fs-4" id="weather-location">Chargement...</p>
+                <small id="weather-temp">Veuillez autoriser la géolocalisation</small><br>
+                <small id="weather-description"></small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Parcelles Disponibles</h5>
+                <p class="mb-0 fs-2">{{ parcelles_libres }}</p>
+                <small>Sur 10 au total</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">Plantations Actives</h5>
+                <p class="mb-0 fs-2">{{ plantations_total }}</p>
+                <small>Nombre de cycles en cours</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card text-white bg-danger">
+            <div class="card-body">
+                <h5 class="card-title">Alertes Critiques</h5>
+                <p class="mb-0 fs-2">0</p>
+                <small>Traitements en retard</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-7 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header"><i class="fas fa-chart-bar"></i> Plantations par Culture</div>
+            <div class="card-body"><canvas id="chartPlantationCulture"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-5 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header"><i class="fas fa-calendar-alt"></i> Calendrier des Suivis</div>
+            <div class="card-body"><div id="fullCalendar"></div></div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{% static 'js/weather.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+{% endblock %}
