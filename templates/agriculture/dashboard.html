@@ -11,7 +11,7 @@
     }
 </style>
 {% endblock %}
-
+{% block body_class %}dashboard-page{% endblock %}
 {% block content %}
 <div class="row mb-4">
     <div class="col-12">
@@ -67,6 +67,26 @@
                             Plantations Actives
                         </div>
                         <div class="h5 mb-0 fw-bold text-gray-800">{{ parcelles_occupées }} / {{ total_parcelles }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card border-start border-primary border-4 shadow-sm h-100 py-2">
+            <div class="card-body">
+                <div id="weather-widget">
+                    <h6 class="text-uppercase fw-bold text-primary mb-3">
+                        Météo Actuelle pour
+                        <span id="weather-location" class="text-info">Chargement...</span>
+                        <i class="fas fa-map-marker-alt"></i>
+                    </h6>
+                    <div class="d-flex align-items-center">
+                        <i id="weather-icon" class="fas fa-spinner fa-spin fa-2x text-info me-3"></i>
+                        <div>
+                            <span id="weather-description" class="fw-bold fs-5">Chargement...</span>
+                            <p class="mb-0" id="weather-temp"></p>
+                        </div>
                     </div>
                 </div>
             </div>
