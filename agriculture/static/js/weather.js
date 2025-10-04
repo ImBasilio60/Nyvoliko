@@ -22,7 +22,7 @@ export function weather() {
           const weatherCode = weatherData.daily.weathercode[0];
 
           document.getElementById("weather-temp").textContent =
-            `Température: ${tempMin}°C - ${tempMax}°C`;
+            ` ${tempMin}°C - ${tempMax}°C`;
           document.getElementById("weather-description").textContent =
             getWeatherDescription(weatherCode);
 
@@ -49,7 +49,6 @@ export function weather() {
         }
         const geoData = await geoRes.json();
         const cityName = geoData?.city || "Unknown location";
-        document.getElementById("weather-location").textContent = cityName;
       } catch (err) {
         console.error(
           "Erreur lors de la récupération du nom de la ville:",
@@ -118,20 +117,23 @@ export function weather() {
     }
 
     function getWeatherIcon(code) {
-      if (code >= 0 && code <= 3) {
-        return "fas fa-cloud-sun"; 
-      } else if (code >= 45 && code <= 48) {
-        return "fas fa-smog"; 
-      } else if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) {
-        return "fas fa-cloud-rain"; 
-      } else if (code >= 71 && code <= 77) {
-        return "fas fa-snowflake"; 
-      } else if (code >= 95 && code <= 99) {
-        return "fas fa-bolt";
-      } else {
-        return "fas fa-question";
-      }
+    const PLANT_COLOR_CLASS = " fa-2x text-plant";
+
+    if (code >= 0 && code <= 3) {
+        return "fas fa-sun" + PLANT_COLOR_CLASS;
+    } else if (code >= 45 && code <= 48) {
+        return "fas fa-smog" + PLANT_COLOR_CLASS;
+    } else if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) {
+        return "fas fa-cloud-rain" + PLANT_COLOR_CLASS;
+    } else if (code >= 71 && code <= 77) {
+        return "fas fa-snowflake" + PLANT_COLOR_CLASS;
+    } else if (code >= 95 && code <= 99) {
+        return "fas fa-bolt" + PLANT_COLOR_CLASS;
+    } else {
+        return "fas fa-question" + PLANT_COLOR_CLASS;
     }
+}
+
 
     if (document.querySelector("body").classList.contains("dashboard-page")) {
       getLocation();
