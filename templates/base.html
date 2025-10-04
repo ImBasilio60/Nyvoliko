@@ -26,7 +26,7 @@
         </div>
     </nav>
 
-    <main class="main-content container-fluid mt-4">
+    <main class="main-content container-fluid pt-4">
         {% if messages %}
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -36,34 +36,63 @@
             {% endfor %}
         {% endif %}
 
+        <div class="row mb-4">
+            <div class="col-12">
+                <p class="fw-light mb-0 fs-5">{% block header %} {% endblock %}</p>
+            </div>
+        </div>
+
         {% block content %}
         {% endblock %}
     </main>
 
-    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = document.getElementById('sidebarMenu');
-            const navbarToggler = document.querySelector('.navbar-toggler');
+<script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebarMenu');
+        const navbarToggler = document.querySelector('.navbar-toggler');
+        const currentPath = window.location.pathname; // Récupère l'URL actuelle
 
-            if (navbarToggler) {
-                navbarToggler.addEventListener('click', function() {
-                    sidebar.classList.toggle('active');
-                });
+        // --- Logique d'activation du lien (NOUVEAU) ---
+        sidebar.querySelectorAll('.nav-link').forEach(link => {
+            // Supprime la classe 'active' de tous les liens par défaut
+            link.classList.remove('active');
+
+            // Obtient le chemin du lien (ex: /dashboard/, /parcelles/)
+            const linkPath = link.getAttribute('href');
+
+            // Logique de correspondance
+            // 1. Correspondance exacte pour le lien 'Dashboard' (souvent '/')
+            if (linkPath === currentPath) {
+                link.classList.add('active');
             }
+            // 2. Correspondance basée sur le début de l'URL pour les autres pages
+            // ex: l'URL '/parcelle/1/modifier/' active le lien '/parcelle/'
+            else if (linkPath !== '/' && currentPath.startsWith(linkPath)) {
+                link.classList.add('active');
+            }
+        });
+        // ---------------------------------------------
 
-            sidebar.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', function() {
-                    // 992px est le breakpoint 'lg' de Bootstrap
-                    if (window.innerWidth < 992) {
-                         sidebar.classList.remove('active');
-                    }
-                });
+
+        if (navbarToggler) {
+            navbarToggler.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+        }
+
+        sidebar.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                // 992px est le breakpoint 'lg' de Bootstrap
+                if (window.innerWidth < 992) {
+                     sidebar.classList.remove('active');
+                }
             });
         });
-    </script>
-    <script type="module" src="{% static 'js/main.js' %}"></script>
-    {% block extra_js %}
-    {% endblock %}
+    });
+</script>
+<script type="module" src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}
+{% endblock %}
 </body>
 </html>

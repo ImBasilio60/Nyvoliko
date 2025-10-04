@@ -31,9 +31,16 @@ class Unite(models.Model):
         verbose_name_plural = "Unités de mesure"
 
 class Parcelle(models.Model):
+    TYPE_SOL_CHOICES = [
+        ('argileux', 'Argileux'),
+        ('sableux', 'Sableux'),
+        ('limoneux', 'Limoneux'),
+        ('humifère', 'Humifère'),
+        ('calcaire', 'Calcaire'),
+    ]
     nom_parcelle = models.CharField(max_length=50, unique=True)
     superficie_parcelle = models.DecimalField(max_digits=10, decimal_places=2, help_text="Superficie en hectare (ha)")
-    type_sol = models.CharField(max_length=50, null=True, blank=True)
+    type_sol = models.CharField(max_length=20, choices=TYPE_SOL_CHOICES)
     disponible = models.BooleanField(default=True)
     parcelle_supprime = models.BooleanField(default=False)
     def __str__(self):

@@ -36,8 +36,9 @@ body {
 }
 
 .btn-primary-custom:hover {
-    background-color: #388E3C;
-    border-color: #388E3C;
+    background-color: white;
+    border-color: var(--harvest-green);
+    color: var(--harvest-green) ;
 }
 
 .form-control {

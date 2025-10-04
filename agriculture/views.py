@@ -15,7 +15,9 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import  messages
 from .models import Parcelle, ADMINISTRATEUR, AGRICULTEUR_TECHNICIEN, Corbeille
 
-from .forms import PlantationForm
+from .forms import PlantationForm, ParcelleForm
+
+
 # Create your views here.
 class AdminRequiredMixin(UserPassesTestMixin):
     def test_func(self):
@@ -127,8 +129,8 @@ class ParcelleListView(LoginRequiredMixin, ListView):
 
 class ParcelleCreateView(AdminRequiredMixin, CreateView):
     model = Parcelle
+    form_class = ParcelleForm
     template_name = 'agriculture/parcelle_form.html'
-    fields = ['nom_parcelle', 'superficie_parcelle', 'type_sol', 'disponible']
     success_url = reverse_lazy('parcelle_list')
 
     def form_valid(self, form):
@@ -138,7 +140,7 @@ class ParcelleCreateView(AdminRequiredMixin, CreateView):
 class ParcelleUpdateView(AdminRequiredMixin, UpdateView):
     model = Parcelle
     template_name = 'agriculture/parcelle_form.html'
-    fields = ['nom_parcelle', 'superficie_parcelle', 'type_sol', 'disponible']
+    form_class = ParcelleForm
     success_url = reverse_lazy('parcelle_list')
 
     def form_valid(self, form):

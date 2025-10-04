@@ -56,3 +56,15 @@ class PlantationForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+
+class ParcelleForm(forms.ModelForm):
+    class Meta:
+        model = Parcelle
+        fields = ['nom_parcelle', 'superficie_parcelle', 'type_sol', 'disponible']
+        widgets = {
+            'nom_parcelle': forms.TextInput(attrs={'class': 'form-control'}),
+            'superficie_parcelle': forms.NumberInput(attrs={'class': 'form-control'}),
+            'type_sol': forms.Select(attrs={'class': 'form-control'}),
+            'disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }

@@ -7,7 +7,7 @@
     <ul class="nav flex-column flex-grow-1 px-3">
         {% if user.is_authenticated %}
             <li class="nav-item mb-1">
-                <a class="nav-link active" href="{% url 'dashboard' %}"><i class="fas fa-chart-line fa-fw me-2"></i> Dashboard</a>
+                <a class="nav-link" href="{% url 'dashboard' %}"><i class="fas fa-chart-line fa-fw me-2"></i> Dashboard</a>
             </li>
             <li class="nav-item mb-1">
                 <a class="nav-link" href="{% url 'parcelle_list' %}"><i class="fas fa-th-large fa-fw me-2"></i> Parcelles</a>

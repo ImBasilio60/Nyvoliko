@@ -36,8 +36,9 @@ body {
 }
 
 .btn-primary-custom:hover {
-  background-color: #388E3C;
-  border-color: #388E3C;
+  background-color: white;
+  border-color: var(--harvest-green);
+  color: var(--harvest-green);
 }
 
 .form-control {
@@ -70,17 +71,6 @@ body {
 
 .border-plant {
   border-left: 4px solid var(--plant-green) !important;
-}
-
-.btn-primary-custom {
-  background-color: var(--plant-green);
-  border-color: var(--plant-green);
-  color: white;
-}
-
-.btn-primary-custom:hover {
-  background-color: #00A945;
-  border-color: #00A945;
 }
 
 .sidebar {
@@ -128,6 +118,7 @@ body {
   margin-left: var(--sidebar-width);
   padding-left: 15px;
   padding-right: 15px;
+  min-height: 100vh;
 }
 
 .alert-success {
@@ -173,6 +164,104 @@ body {
 .chart-area {
   flex-grow: 1;
   position: relative;
+}
+
+:root {
+  --plant-green: #00C853;
+  --charcoal-gray: #212121;
+}
+
+.text-plant {
+  color: var(--plant-green) !important;
+}
+
+.form-floating > .form-control,
+.form-floating > .form-select {
+  border-radius: 0.5rem !important;
+  height: calc(1.5em + 1.25rem + 2px);
+  padding: 1rem 0.75rem;
+}
+
+.form-floating > label {
+  padding: 1rem 0.75rem;
+  color: #6c757d;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+  color: var(--plant-green);
+  opacity: 0.8;
+  transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--plant-green);
+  border-width: 2px;
+  box-shadow: 0 0 0 0.25rem rgba(0, 200, 83, 0.25);
+}
+
+.form-check-input:checked {
+  background-color: var(--plant-green);
+  border-color: var(--plant-green);
+}
+
+.form-check-input[type=checkbox] {
+  border-radius: 0.25rem;
+  border: 1px solid #ced4da;
+}
+
+.parcelle-card {
+  border-left: 5px solid transparent !important;
+  transition: border-left 0.3s ease;
+}
+
+.parcelle-card.border-plant {
+  border-left-color: var(--plant-green) !important;
+}
+
+.parcelle-card.border-coral {
+  border-left-color: var(--coral-orange) !important;
+}
+
+.badge.bg-plant {
+  background-color: var(--plant-green) !important;
+}
+
+.badge.bg-coral-orange {
+  background-color: var(--coral-orange) !important;
+}
+
+@media (max-width: 991.98px) {
+  .d-grid.d-lg-block a.btn-lg {
+    width: 100%;
+  }
+  .col-lg-3.col-12.d-flex button,
+  .col-lg-3.col-12.d-flex a.btn-outline-secondary {
+    margin-bottom: 8px;
+  }
+}
+.form-control,
+.form-select {
+  box-shadow: none !important;
+  border-color: #ced4da;
+  height: calc(1.5em + 0.75rem + 2px);
+  padding: 0.375rem 0.75rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--plant-green);
+  border-width: 2px;
+  outline: 0;
+  box-shadow: none !important;
+}
+
+.input-group-text {
+  height: calc(1.5em + 0.75rem + 2px);
+  display: flex;
+  align-items: center;
 }
 
 /*# sourceMappingURL=style.css.map */

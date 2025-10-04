@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Liste des Parcelles{% endblock %}
+{% block body_class %}parcelle-page{% endblock %}
+
+{% block header %}Pages principal des Parcelles{% endblock %}
+
+{% block content %}
+<form method="GET" action="{% url 'parcelle_list' %}" class="row g-3 mb-4 align-items-end">
+    <div class="col-lg-5 col-md-6 col-12">
+        <label for="id_q" class="form-label visually-hidden">Recherche</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" name="q" id="id_q" class="form-control" placeholder="Nom, superficie, ou type de sol..." value="{{ request.GET.q|default:'' }}">
+        </div>
+    </div>
+
+    <div class="col-lg-4 col-md-6 col-12">
+        <label for="id_statut" class="form-label visually-hidden">Statut</label>
+        <select name="statut" id="id_statut" class="form-select">
+            <option value="">-- Filtrer par Statut --</option>
+            <option value="disponible" {% if request.GET.statut == 'disponible' %}selected{% endif %}>Disponible</option>
+            <option value="occupée" {% if request.GET.statut == 'occupée' %}selected{% endif %}>Occupée</option>
+        </select>
+    </div>
+
+    <div class="col-lg-3 col-12 d-flex justify-content-lg-end justify-content-between flex-wrap">
+        <button type="submit" class="btn btn-primary-custom flex-grow-1 flex-lg-grow-0 me-2 mb-2 mb-lg-0"><i class="fas fa-filter"></i> Filtrer</button>
+        <a href="{% url 'parcelle_list' %}" class="btn btn-outline-secondary flex-grow-1 flex-lg-grow-0"><i class="fas fa-times"></i> Réinitialiser</a>
+    </div>
+</form>
+
+{% if user.is_superuser or user.profilutilisateur.role == 1 %}
+    <div class="d-grid d-lg-block mb-4">
+         <a href="{% url 'parcelle_create' %}" class="btn btn-primary-custom flex-fill flex-lg-grow-0 me-lg-2 mb-2 mb-lg-0 btn-action-main"><i class="fas fa-plus me-1"></i> Ajouter</a>
+    </div>
+{% endif %}
+
+<div class="table-responsive bg-white rounded shadow-sm d-none d-lg-block p-4">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light border-bottom">
+            <tr>
+                <th class="text-charcoal-gray">Nom</th>
+                <th class="text-charcoal-gray">Superficie (ha)</th>
+                <th class="text-charcoal-gray">Type de Sol</th>
+                <th class="text-charcoal-gray">Statut</th>
+                <th class="text-charcoal-gray">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for parcelle in parcelles %}
+            <tr>
+                <td>{{ parcelle.nom_parcelle }}</td>
+                <td>{{ parcelle.superficie_parcelle }}</td>
+                <td>{{ parcelle.type_sol|default:'Non spécifié' }}</td>
+                <td>
+                    {% if parcelle.disponible %}
+                        <span class="badge bg-plant text-white">Disponible</span>
+                    {% else %}
+                        <span class="badge bg-coral-orange text-white">Occupée</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.is_superuser or user.profilutilisateur.role == 1 %}
+                    <a href="{% url 'parcelle_update' pk=parcelle.pk %}" class="btn btn-sm btn-outline-info me-1" title="Modifier"><i class="fas fa-edit"></i></a>
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ parcelle.pk }}" title="Supprimer">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    {% else %}
+                    <span class="text-muted small">Non autorisé</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <div class="modal fade" id="deleteModal-{{ parcelle.pk }}" tabindex="-1" aria-labelledby="deleteModalLabel-{{ parcelle.pk }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-white border-bottom">
+                            <h5 class="modal-title text-danger" id="deleteModalLabel-{{ parcelle.pk }}">Confirmer la Suppression</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Êtes-vous sûr de vouloir déplacer la parcelle <strong>{{ parcelle.nom_parcelle }}</strong> vers la corbeille ?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <form method="POST" action="{% url 'parcelle_delete' pk=parcelle.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Supprimer (Corbeille)</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center text-muted">Aucune parcelle trouvée selon les critères.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="d-lg-none">
+    {% for parcelle in parcelles %}
+    <div class="card mb-3 shadow-sm border-0 parcelle-card {% if parcelle.disponible %}border-plant{% else %}border-coral{% endif %}">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="card-title text-charcoal-gray mb-0">{{ parcelle.nom_parcelle }}</h5>
+                {% if parcelle.disponible %}
+                    <span class="badge bg-plant text-white fs-6">Disponible</span>
+                {% else %}
+                    <span class="badge bg-coral-orange text-white fs-6">Occupée</span>
+                {% endif %}
+            </div>
+            <p class="card-text mb-1 small text-muted">
+                <i class="fas fa-ruler-combined me-1"></i> Superficie : <strong class="text-charcoal-gray">{{ parcelle.superficie_parcelle }} ha</strong>
+            </p>
+            <p class="card-text mb-3 small text-muted">
+                <i class="fas fa-layer-group me-1"></i> Type de Sol : <strong class="text-charcoal-gray">{{ parcelle.type_sol|default:'Non spécifié' }}</strong>
+            </p>
+
+            {% if user.is_superuser or user.profilutilisateur.role == 1 %}
+            <div class="d-flex justify-content-end pt-2 border-top">
+                <a href="{% url 'parcelle_update' pk=parcelle.pk %}" class="btn btn-sm btn-outline-info me-2" title="Modifier"><i class="fas fa-edit me-1"></i> Modifier</a>
+                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ parcelle.pk }}" title="Supprimer">
+                    <i class="fas fa-trash-alt me-1"></i> Supprimer
+                </button>
+            </div>
+            {% else %}
+            <div class="pt-2 border-top text-end">
+                <span class="text-muted small">Détails disponibles</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-info text-center" role="alert">
+        Aucune parcelle trouvée selon les critères.
+    </div>
+    {% endfor %}
+</div>
+
+{% include 'agriculture/pagination.html' %}
+{% endblock %}
