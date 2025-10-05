@@ -171,10 +171,6 @@ class CorbeilleListView(AdminRequiredMixin, ListView):
     context_object_name = 'elements_supprimes'
 
 def restaurer_element(request, table_name, pk):
-    if not request.user.is_authenticated or request.user.profilutilisateur.role != ADMINISTRATEUR:
-        messages.error(request, "Permission refusée.")
-        return redirect('corbeille_list')
-
     if table_name == 'Parcelle':
         model = Parcelle
         champ_supprime = 'parcelle_supprime'
@@ -207,6 +203,43 @@ def restaurer_element(request, table_name, pk):
         messages.error(request, f"Erreur lors de la restauration: {e}")
 
     return redirect('corbeille_list')
+
+def restaurer_tout(request):
+    corbeille_items = Corbeille.objects.all()
+    restored_count = 0
+
+    for item in corbeille_items:
+        table_name = item.nom_table
+        pk = item.ID_enregistrement
+
+        try:
+            if table_name == 'Parcelle':
+                model = Parcelle
+                champ_supprime = 'parcelle_supprime'
+            elif table_name == 'Culture':
+                model = Culture
+                champ_supprime = 'culture_supprime'
+            elif table_name == 'Plantation':
+                model = Plantation
+                champ_supprime = 'plantation_supprime'
+            elif table_name == 'Suivi':
+                model = Suivi
+                champ_supprime = 'suivi_supprime'
+            else:
+                continue
+
+            element = get_object_or_404(model, pk=pk)
+            setattr(element, champ_supprime, False)
+            element.save()
+            item.delete()
+            restored_count += 1
+
+        except Exception as e:
+            messages.error(request, f"Erreur pour {table_name} id={pk}: {e}")
+
+    messages.success(request, f"{restored_count} élément(s) restauré(s) avec succès.")
+    return redirect('corbeille_list')
+
 
 class CultureListView(LoginRequiredMixin, ListView):
     model = Culture

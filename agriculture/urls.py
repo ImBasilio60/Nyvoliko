@@ -36,4 +36,6 @@ urlpatterns = [
     # CORBEILLE
     path('corbeille/', views.CorbeilleListView.as_view(), name='corbeille_list'),
     path('corbeille/restaurer/<str:table_name>/<int:pk>/', views.restaurer_element, name='restaurer_element'),
+    path('corbeille/restaurer_tout/', views.restaurer_tout, name='restaurer_tout'),
+
 ]

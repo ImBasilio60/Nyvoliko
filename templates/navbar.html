@@ -18,6 +18,9 @@
             <li class="nav-item mb-1">
                 <a class="nav-link" href="{% url 'plantation_list' %}"><i class="fas fa-plus fa-fw me-2"></i> Plantations</a>
             </li>
+            <li class="nav-item mb-1">
+                <a class="nav-link" href="{% url 'corbeille_list' %}"><i class="fas fa-trash fa-fw me-2"></i> Corbeilles</a>
+            </li>
             {% if user.is_superuser %}
             <li class="nav-item mb-1">
                 <a class="nav-link" href="{% url 'admin:index' %}"><i class="fas fa-user-shield fa-fw me-2"></i> Administration</a>
