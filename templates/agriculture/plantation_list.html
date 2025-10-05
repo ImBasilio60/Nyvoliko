@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Liste des Plantations{% endblock %}
+{% block body_class %}plantation-page{% endblock %}
+
+{% block header %}Page principale des Plantations{% endblock %}
+
+{% block content %}
+<form method="GET" action="{% url 'plantation_list' %}" class="row g-3 mb-4 align-items-end">
+
+    <div class="col-lg-3 col-md-6 col-12">
+        <label for="id_q" class="form-label visually-hidden">Recherche</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" name="q" id="id_q" class="form-control" placeholder="Parcelle ou Culture..." value="{{ request.GET.q|default:'' }}">
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-12">
+        <label for="id_parcelle" class="form-label visually-hidden">Filtrer par Parcelle</label>
+        <select name="parcelle" id="id_parcelle" class="form-select">
+            <option value="">-- Filtrer par Parcelle --</option>
+            {% for p in parcelles %}
+            <option value="{{ p.pk }}" {% if request.GET.parcelle|floatformat:"0" == p.pk|floatformat:"0" %}selected{% endif %}>
+                {{ p.nom_parcelle }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-12">
+        <label for="id_culture" class="form-label visually-hidden">Filtrer par Culture</label>
+        <select name="culture" id="id_culture" class="form-select">
+            <option value="">-- Filtrer par Culture --</option>
+            {% for c in cultures %}
+            <option value="{{ c.pk }}" {% if request.GET.culture|floatformat:"0" == c.pk|floatformat:"0" %}selected{% endif %}>
+                {{ c.nom_culture }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-lg-3 col-12 d-flex justify-content-lg-end justify-content-between flex-wrap">
+        <button type="submit" class="btn btn-primary-custom flex-grow-1 flex-lg-grow-0 me-2 mb-2 mb-lg-0"><i class="fas fa-filter"></i> Filtrer</button>
+        <a href="{% url 'plantation_list' %}" class="btn btn-outline-secondary flex-grow-1 flex-lg-grow-0"><i class="fas fa-times"></i> Réinitialiser</a>
+    </div>
+</form>
+
+<div class="d-grid d-lg-block mb-4">
+     <a href="{% url 'plantation_create' %}" class="btn btn-primary-custom flex-fill flex-lg-grow-0 me-lg-2 mb-2 mb-lg-0 btn-action-main"><i class="fas fa-plus me-1"></i> Ajouter</a>
+</div>
+
+<div class="table-responsive bg-white rounded shadow-sm d-none d-lg-block p-4">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light border-bottom">
+            <tr>
+                <th class="text-charcoal-gray">Parcelle</th>
+                <th class="text-charcoal-gray">Culture/Variété</th>
+                <th class="text-charcoal-gray">Quantité</th>
+                <th class="text-charcoal-gray">Date Plantation</th>
+                <th class="text-charcoal-gray">Méthode</th>
+                <th class="text-charcoal-gray">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for plantation in plantations %}
+            <tr>
+                <td class="fw-medium">{{ plantation.ID_parcelle.nom_parcelle }}</td>
+                <td>
+                    <strong>{{ plantation.ID_culture.nom_culture }}</strong>
+                    <br><small class="text-muted">{{ plantation.ID_culture.variete_culture|default:'N/A' }}</small>
+                </td>
+                <td>{{ plantation.quantite_plantee }} {{ plantation.ID_unite.unite }}</td>
+                <td>{{ plantation.date_plantation_terre|date:"d/m/Y" }}</td>
+                <td>{{ plantation.methode_culture }}</td>
+                <td>
+                    <a href="{% url 'plantation_update' pk=plantation.pk %}" class="btn btn-sm btn-outline-info me-1" title="Modifier"><i class="fas fa-edit"></i></a>
+                    <a href="{% url 'suivi_list' pk_plantation=plantation.pk %}" class="btn btn-sm btn-outline-success me-1" title="Voir/Ajouter Suivi">
+                        <i class="fas fa-search-plus"></i>
+                    </a>
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ plantation.pk }}" title="Supprimer">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            </tr>
+            <div class="modal fade" id="deleteModal-{{ plantation.pk }}" tabindex="-1" aria-labelledby="deleteModalLabel-{{ plantation.pk }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-white border-bottom">
+                            <h5 class="modal-title text-danger" id="deleteModalLabel-{{ plantation.pk }}"><i class="fas fa-exclamation-triangle me-2"></i> Confirmer la Suppression</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Êtes-vous sûr de vouloir déplacer la plantation de la parcelle **{{ plantation.ID_parcelle.nom_parcelle }}** vers la corbeille ?
+                            <br><small class="text-muted">Ceci marquera la parcelle comme **Disponible**.</small>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <form method="POST" action="{% url 'plantation_delete' pk=plantation.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Supprimer (Corbeille)</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center text-muted">Aucune plantation trouvée selon les critères.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="d-lg-none">
+    {% for plantation in plantations %}
+    <div class="card mb-3 shadow-sm border-0 plantation-card border-success">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="card-title text-charcoal-gray mb-0">{{ plantation.ID_parcelle.nom_parcelle }}</h5>
+                <span class="badge bg-success text-white fs-6">{{ plantation.date_plantation_terre|date:"d/m/Y" }}</span>
+            </div>
+            <p class="card-text mb-1 small text-muted">
+                <i class="fas fa-seedling me-1"></i> Culture : <strong class="text-charcoal-gray">{{ plantation.ID_culture.nom_culture }} ({{ plantation.ID_culture.variete_culture|default:'N/A' }})</strong>
+            </p>
+            <p class="card-text mb-1 small text-muted">
+                <i class="fas fa-balance-scale me-1"></i> Quantité : <strong class="text-charcoal-gray">{{ plantation.quantite_plantee }} {{ plantation.ID_unite.unite }}</strong>
+            </p>
+            <p class="card-text mb-3 small text-muted">
+                <i class="fas fa-tools me-1"></i> Méthode : <strong class="text-charcoal-gray">{{ plantation.methode_culture }}</strong>
+            </p>
+
+            <div class="d-flex justify-content-end pt-2 border-top">
+                <a href="{% url 'plantation_update' pk=plantation.pk %}" class="btn btn-sm btn-outline-info me-2" title="Modifier"><i class="fas fa-edit me-1"></i> Modifier</a>
+                <a href="{% url 'suivi_list' pk_plantation=plantation.pk %}" class="btn btn-sm btn-outline-success me-2" title="Suivi">
+                    <i class="fas fa-search-plus me-1"></i> Suivi
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ plantation.pk }}" title="Supprimer">
+                    <i class="fas fa-trash-alt me-1"></i> Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-info text-center" role="alert">
+        Aucune plantation trouvée selon les critères.
+    </div>
+    {% endfor %}
+</div>
+
+{% include 'agriculture/pagination.html' %} 
+
+{% endblock %}

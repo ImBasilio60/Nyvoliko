@@ -1,5 +1,5 @@
 from django import forms
-from .models import Plantation, Parcelle, Culture, Unite
+from .models import Plantation, Parcelle, Culture, Unite, Suivi
 
 class PlantationForm(forms.ModelForm):
     ID_parcelle = forms.ModelChoiceField(
@@ -78,4 +78,13 @@ class CultureForm(forms.ModelForm):
             'variete_culture': forms.TextInput(attrs={'class': 'form-control'}),
             'cycle_culture': forms.NumberInput(attrs={'class': 'form-control'}),
             'saisonnalite_culture': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+class SuiviForm(forms.ModelForm):
+    class Meta:
+        model = Suivi
+        fields = ['details_suivi', 'ID_plantation']
+        widgets = {
+            'details_suivi': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'ID_plantation': forms.Select(attrs={'class': 'form-control'}),
         }

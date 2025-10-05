@@ -15,7 +15,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import  messages
 from .models import Parcelle, ADMINISTRATEUR, AGRICULTEUR_TECHNICIEN, Corbeille
 
-from .forms import PlantationForm, ParcelleForm, CultureForm
+from .forms import PlantationForm, ParcelleForm, CultureForm, SuiviForm
 
 
 # Create your views here.
@@ -393,7 +393,7 @@ class PlantationDeleteView(AgriculteurTechRequiredMixin, DeleteView):
 
 class SuiviListView(AgriculteurTechRequiredMixin, CreateView, ListView):
     model = Suivi
-    fields = ['details_suivi', 'ID_plantation']
+    form_class = SuiviForm
     template_name = 'agriculture/suivi_list.html'
     context_object_name = 'suivis'
     paginate_by = 5
