@@ -323,7 +323,7 @@ class PlantationListView(AgriculteurTechRequiredMixin, ListView):
     model = Plantation
     template_name = 'agriculture/plantation_list.html'
     context_object_name = 'plantations'
-    paginate_by = 5
+    paginate_by = 4
 
     def get_queryset(self):
         queryset = Plantation.objects.filter(plantation_supprime=False).order_by('-date_plantation_terre')
