@@ -68,3 +68,14 @@ class ParcelleForm(forms.ModelForm):
             'type_sol': forms.Select(attrs={'class': 'form-control'}),
             'disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
+class CultureForm(forms.ModelForm):
+    class Meta:
+        model = Culture
+        fields = ['nom_culture', 'variete_culture', 'cycle_culture', 'saisonnalite_culture']
+        widgets = {
+            'nom_culture': forms.TextInput(attrs={'class': 'form-control'}),
+            'variete_culture': forms.TextInput(attrs={'class': 'form-control'}),
+            'cycle_culture': forms.NumberInput(attrs={'class': 'form-control'}),
+            'saisonnalite_culture': forms.Select(attrs={'class': 'form-control'}),
+        }

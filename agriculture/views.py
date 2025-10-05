@@ -15,7 +15,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import  messages
 from .models import Parcelle, ADMINISTRATEUR, AGRICULTEUR_TECHNICIEN, Corbeille
 
-from .forms import PlantationForm, ParcelleForm
+from .forms import PlantationForm, ParcelleForm, CultureForm
 
 
 # Create your views here.
@@ -244,7 +244,7 @@ class CultureListView(LoginRequiredMixin, ListView):
 class CultureCreateView(AdminRequiredMixin, CreateView):
     model = Culture
     template_name = 'agriculture/culture_form.html'
-    fields = ['nom_culture', 'variete_culture', 'cycle_culture', 'saisonnalite_culture']
+    form_class = CultureForm
     success_url = reverse_lazy('culture_list')
 
     def form_valid(self, form):
@@ -254,7 +254,7 @@ class CultureCreateView(AdminRequiredMixin, CreateView):
 class CultureUpdateView(AdminRequiredMixin, UpdateView):
     model = Culture
     template_name = 'agriculture/culture_form.html'
-    fields = ['nom_culture', 'variete_culture', 'cycle_culture', 'saisonnalite_culture']
+    form_class = CultureForm
     success_url = reverse_lazy('culture_list')
 
     def form_valid(self, form):

@@ -51,10 +51,20 @@ class Parcelle(models.Model):
         verbose_name_plural = "Parcelles agricoles"
 
 class Culture(models.Model):
+    SAISON_CHOICES = [
+        ('pluvieuse', 'Saison pluvieuse'),
+        ('seche', 'Saison sèche'),
+        ('toute_annee', 'Toute l’année'),
+    ]
+
     nom_culture = models.CharField(max_length=50, unique=True)
     variete_culture = models.CharField(max_length=50, null=True, blank=True)
     cycle_culture = models.IntegerField(null=True, blank=True, help_text="Durée du cycle en jours")
-    saisonnalite_culture = models.CharField(max_length=30, null=True, blank=True)
+    saisonnalite_culture = models.CharField(
+        max_length=20,
+        choices=SAISON_CHOICES,
+        default='pluvieuse'
+    )
     culture_supprime = models.BooleanField(default=False)
     def __str__(self):
         return f"{self.nom_culture} ({self.variete_culture})"
