@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tableau de Bord{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+{% block body_class %}dashboard-page{% endblock %}
+{% block header %}Tableau de Bord{%endblock%}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-md-6 col-lg-3 mb-4">
+        <div class="card border-plant border-4 shadow-sm h-100 py-2">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <i class="fas fa-boxes fa-2x text-plant"></i>
+                    </div>
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-plant text-uppercase mb-1">
+                            Parcelles Dispo
+                        </div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ parcelles_disponibles }} / {{ total_parcelles }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-3 mb-4">
+        <div class="card border-plant border-4 shadow-sm h-100 py-2">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <i class="fas fa-map-marked-alt fa-2x text-plant"></i>
+                    </div>
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-plant text-uppercase mb-1">
+                            Parcelles Occupées
+                        </div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ parcelles_occupées }} / {{ total_parcelles }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-3 mb-4">
+        <div class="card border-plant border-4 shadow-sm h-100 py-2">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <i class="fas fa-seedling fa-2x text-plant"></i>
+                    </div>
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-plant text-uppercase mb-1">
+                            Plantations Actives
+                        </div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ parcelles_occupées }} / {{ total_parcelles }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-3 mb-4">
+        <div class="card border-plant border-4 shadow-sm h-100 py-2">
+            <div class="card-body">
+                <div id="weather-widget">
+                    <div class="d-flex align-items-center">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <i id="weather-icon" class="fas fa-spinner fa-spin fa-2x text-plant"></i>
+                            </div>
+                            <div class="col me-2">
+                                <div id="weather-description" class="text-xs fw-bold text-plant text-uppercase mb-1">
+                                    Chargement...
+                                </div>
+                                 <div id="weather-temp" class="h5 mb-0 fw-bold text-gray-800">{{ parcelles_occupées }} / {{ total_parcelles }}</div>
+                            </div>
+                        </div>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 col-xl-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 fw-bold text-plant">Répartition des Cultures</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="cultureChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-6 mb-4">
+        <div class="card shadow h-100"> <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 fw-bold text-plant">Superficie Occupée par Parcelle</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area d-flex align-items-center">
+                    <canvas id="parcelleChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white border-bottom fw-bold text-plant">Suivis Récents</div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for suivi in suivis_recents %}
+                    <li class="list-group-item">
+                        <small class="text-muted">{{ suivi.date_suivi|date:"d/m/Y" }}</small>
+                        <p class="mb-0 fw-bold">{{ suivi.details_suivi }}</p>
+                        <small>sur {{ suivi.ID_plantation.ID_parcelle.nom_parcelle }} ({{ suivi.ID_plantation.ID_culture.nom_culture }})</small>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center text-muted">Aucun suivi récent.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/chart.min.js' %}"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cultureLabels = {{ chart_cultures_labels|safe }};
+        const cultureData = {{ chart_cultures_data|safe }};
+        const parcelleLabels = {{ chart_parcelles_labels|safe }};
+        const parcelleData = {{ chart_parcelles_data|safe }};
+
+        const PLANT_GREEN_SOLID = '#00C853';
+
+        function generateColors(count) {
+            const colors = [
+                'rgba(0, 200, 83, 0.9)',
+                'rgba(139, 195, 74, 0.9)',
+                'rgba(121, 85, 72, 0.8)',
+                'rgba(158, 158, 158, 0.7)',
+            ];
+            const generated = [];
+            for (let i = 0; i < count; i++) {
+                generated.push(colors[i % colors.length]);
+            }
+            return generated;
+        }
+
+        if (cultureLabels.length > 0) {
+            const cultureChartCtx = document.getElementById('cultureChart').getContext('2d');
+            new Chart(cultureChartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: cultureLabels,
+                    datasets: [{
+                        data: cultureData,
+                        backgroundColor: generateColors(cultureData.length),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Nombre de Plantations par Type de Culture'
+                        }
+                    }
+                }
+            });
+        }
+
+        if (parcelleLabels.length > 0) {
+            const parcelleChartCtx = document.getElementById('parcelleChart').getContext('2d');
+            new Chart(parcelleChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: parcelleLabels,
+                    datasets: [{
+                        label: 'Superficie Occupée (m²)',
+                        data: parcelleData,
+                        backgroundColor: PLANT_GREEN_SOLID,
+                        borderColor: PLANT_GREEN_SOLID,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+{% endblock %}

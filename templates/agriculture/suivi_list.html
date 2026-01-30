@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Suivis pour {{ plantation.ID_culture.nom_culture }} sur {{ plantation.ID_parcelle.nom_parcelle }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h3">Suivi : {{ plantation.ID_culture.nom_culture }}</h1>
+        <p class="text-muted my-4">Parcelle : <strong>{{ plantation.ID_parcelle.nom_parcelle }}</strong> | Planté le : {{ plantation.date_plantation_terre|date:"d/m/Y" }}</p>
+        <a href="{% url 'plantation_list' %}" class="btn btn-sm btn-outline-secondary mb-3"><i class="fas fa-arrow-left"></i> Retour aux Plantations</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">Ajouter un Nouveau Suivi</div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                        {% if field.name != 'ID_plantation' %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}:</label>
+                                {{ field.as_widget }}
+                                {% for error in field.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                    {% endfor %}
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary-custom shadow-sm"><i class="fas fa-plus"></i> Enregistrer le Suivi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">Historique Complet des Suivis</div>
+            <div class="card-body">
+                {% if suivis %}
+                <ul class="list-group list-group-flush">
+                    {% for suivi in suivis %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">{{ suivi.date_suivi|date:"d M Y" }}</div>
+                            <small>{{ suivi.details_suivi }}</small>
+                        </div>
+                        <div class="btn-group">
+                            <a href="{% url 'suivi_update' pk=suivi.pk %}" class="btn btn-sm btn-outline-info me-2" title="Modifier"><i class="fas fa-edit"></i></a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteSuiviModal-{{ suivi.pk }}" title="Supprimer (Corbeille)">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </li>
+                    <div class="modal fade" id="deleteSuiviModal-{{ suivi.pk }}" tabindex="-1" aria-labelledby="deleteSuiviModalLabel-{{ suivi.pk }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Confirmer la Suppression</h5>
+                                </div>
+                                <div class="modal-body">
+                                    Voulez-vous vraiment supprimer cet enregistrement de suivi du {{ suivi.date_suivi|date:"d/m/Y" }} ?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                    <form method="POST" action="{% url 'suivi_delete' pk=suivi.pk %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Supprimer (Corbeille)</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-center text-muted">Aucun suivi n'a été enregistré pour cette plantation.</p>
+                    {% endfor %}
+                </ul>
+                {% include 'agriculture/pagination.html' %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.card-body input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), .card-body textarea').forEach(function(element) {
+            if (!element.classList.contains('form-control')) {
+                element.classList.add('form-control');
+            }
+        });
+    });
+</script>
+{% endblock %}

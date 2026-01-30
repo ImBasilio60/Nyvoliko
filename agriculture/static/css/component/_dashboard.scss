@@ -1,0 +1,10 @@
+    .card-body {
+        display: flex;
+        flex-direction: column;
+    }
+
+
+    .chart-area {
+        flex-grow: 1;
+        position: relative;
+    }

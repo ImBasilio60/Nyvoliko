@@ -1,0 +1,12 @@
+db: ny_voliko
+agriculteur: androndra agri
+
+https://django-rest-framework-simplejwt.readthedocs.io/en/latest/getting_started.html#installation
+https://pypi.org/project/django-cors-headers/
+https://docs.djangoproject.com/en/6.0/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser
+https://www.django-rest-framework.org/api-guide/serializers/
+
+https://tailwindcss.com/docs/installation/using-vite
+https://reactrouter.com/start/declarative/installation
+
+https://axios-http.com/docs/intro

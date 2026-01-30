@@ -1,0 +1,45 @@
+:root {
+  --plant-green: #00C853;
+  --charcoal-gray: #212121;
+}
+
+.text-plant {
+    color: var(--plant-green) !important;
+}
+
+.form-floating > .form-control,
+.form-floating > .form-select {
+    border-radius: 0.5rem !important;
+    height: calc(1.5em + 1.25rem + 2px);
+    padding: 1rem .75rem;
+}
+
+.form-floating > label {
+    padding: 1rem .75rem;
+    color: #6c757d;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+    color: var(--plant-green);
+    opacity: 0.8;
+    transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--plant-green);
+  border-width: 2px;
+  box-shadow: 0 0 0 0.25rem rgba(0, 200, 83, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: var(--plant-green);
+    border-color: var(--plant-green);
+}
+
+.form-check-input[type=checkbox] {
+    border-radius: 0.25rem;
+    border: 1px solid #ced4da;
+}

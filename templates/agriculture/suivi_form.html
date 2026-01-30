@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Modifier le Suivi{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <h1 class="h3 mb-4"><i class="fas fa-edit text-info"></i> Modifier le Suivi</h1>
+        <p class="text-muted">Plantation: **{{ object.ID_plantation.ID_culture.nom_culture }}** sur **{{ object.ID_plantation.ID_parcelle.nom_parcelle }}**</p>
+        
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}:</label>
+                            {{ field.as_widget }}
+                            {% for error in field.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary-custom shadow-sm">Enregistrer les Modifications</button>
+                        <a href="{% url 'suivi_list' pk_plantation=object.ID_plantation.pk %}" class="btn btn-outline-secondary">Annuler et Retourner au Suivi</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.card-body input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), .card-body textarea').forEach(function(element) {
+            if (!element.classList.contains('form-control')) {
+                element.classList.add('form-control');
+            }
+        });
+    });
+</script>
+{% endblock %}
