@@ -85,8 +85,9 @@ export default function Hero() {
             <Image
               src="/hero-nyvoliko.png"
               alt="Agriculteur utilisant Nyvoliko"
-              width={600}
-              height={600}
+              width={1619}
+              height={971}
+              quality={100}
               className="relative rounded-[2rem] shadow-2xl object-cover h-[600px] w-full z-10 border-4 border-white"
             />
 
