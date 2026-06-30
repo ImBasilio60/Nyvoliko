@@ -3,7 +3,6 @@ import Hero from "@/components/landing/Hero";
 import Features from "@/components/landing/Features";
 import Benefits from "@/components/landing/Benefits";
 import Testimonials from "@/components/landing/Testimonials";
-import CTA from "@/components/landing/CTA";
 import Footer from "@/components/landing/Footer";
 
 export default function Home() {
@@ -15,7 +14,6 @@ export default function Home() {
         <Features />
         <Benefits />
         <Testimonials />
-        <CTA />
       </main>
       <Footer />
     </>

@@ -11,7 +11,10 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Nyvoliko | L'agriculture intelligente pour un avenir meilleur",
   description:
-    "Nyvoliko est votre assistant agricole intelligent qui vous aide à prendre les bonnes décisions au bon moment pour des récoltes plus rentables et une gestion sereine.",
+    "Nyvoliko vous accompagne au quotidien dans la gestion de votre exploitation : suivi des cultures, prévisions météo, alertes intelligentes et analyses de rentabilité.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

@@ -35,28 +35,28 @@ const features: Feature[] = [
     icon: Sprout,
     title: "Gestion des cultures",
     description:
-      "Suivez l'évolution de toutes vos cultures en cours en temps réel, de la semence à la récolte.",
+      "Gardez un œil sur chaque cycle de culture, du semis à la récolte, avec des rappels pour chaque étape clé.",
     iconColor: "text-brand-primary",
   },
   {
     icon: Map,
     title: "Parcelles & planning",
     description:
-      "Visualisez vos parcelles, celles en culture et celles disponibles pour optimiser votre espace.",
+      "Cartographiez vos terrains et visualisez en un coup d'œil les disponibilités pour mieux organiser vos rotations.",
     iconColor: "text-brand-primary",
   },
   {
     icon: CloudRain,
     title: "Météo & Actions",
     description:
-      "Recevez des recommandations d'arrosage ou de traitement adaptées aux prévisions locales.",
+      "Anticipez les caprices du ciel avec des prévisions localisées et des conseils adaptés à vos cultures.",
     iconColor: "text-brand-accent",
   },
   {
     icon: BarChart3,
     title: "Rapports & revenus",
     description:
-      "Analysez vos performances et augmentez vos revenus année après année grâce aux statistiques.",
+      "Suivez l'évolution de vos performances et identifiez vos cultures les plus rentables saison après saison.",
     iconColor: "text-brand-highlight",
   },
 ];
@@ -83,44 +83,45 @@ const testimonials: Testimonial[] = [
 ];
 
 const benefits: string[] = [
-  "Évitez les dépenses inutiles (eau, engrais)",
-  "Agissez au bon moment selon la météo",
-  "Améliorez vos rendements par culture",
-  "Suivez vos progrès facilement sur mobile",
+  "Moins de gaspillage, plus d'économies sur chaque parcelle",
+  "Des interventions agricoles calées sur la météo",
+  "Des rendements qui grimpent saison après saison",
+  "Un tableau de bord dans votre poche, accessible partout",
 ];
 
 const footerColumns: FooterColumn[] = [
   {
     title: "Produit",
     links: [
-      { label: "Fonctionnalités", href: "#" },
-      { label: "Tarifs", href: "#" },
-      { label: "Mises à jour", href: "#" },
+      { label: "Accueil", href: "/" },
+      { label: "Fonctionnalités", href: "/fonctionnalites" },
+      { label: "Avantages", href: "/avantages" },
+      { label: "Témoignages", href: "/temoignages" },
     ],
   },
   {
     title: "Ressources",
     links: [
-      { label: "Blog Agricole", href: "#" },
-      { label: "Guides pratiques", href: "#" },
-      { label: "FAQ", href: "#" },
+      { label: "Blog Agricole", href: "/blog" },
+      { label: "Guides pratiques", href: "/guides" },
+      { label: "FAQ", href: "/faq" },
     ],
   },
   {
     title: "Entreprise",
     links: [
-      { label: "À propos", href: "#" },
-      { label: "Contact", href: "#" },
-      { label: "Mentions légales", href: "#" },
+      { label: "À propos", href: "/a-propos" },
+      { label: "Contact", href: "/contact" },
+      { label: "Mentions légales", href: "/mentions-legales" },
     ],
   },
 ];
 
 const navLinks: NavLink[] = [
-  { label: "Accueil", href: "#accueil" },
-  { label: "Fonctionnalités", href: "#fonctionnalites" },
-  { label: "Avantages", href: "#avantages" },
-  { label: "Témoignages", href: "#temoignages" },
+  { label: "Accueil", href: "/" },
+  { label: "Fonctionnalités", href: "/fonctionnalites" },
+  { label: "Avantages", href: "/avantages" },
+  { label: "Témoignages", href: "/temoignages" },
 ];
 
 export type { Feature, Testimonial, FooterColumn };

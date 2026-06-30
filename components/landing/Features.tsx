@@ -10,11 +10,11 @@ export default function Features() {
             <Sparkles className="w-4 h-4" /> Fonctionnalités
           </div>
           <h2 className="text-3xl lg:text-4xl font-bold mb-4">
-            Tout ce qu&apos;il vous faut pour une agriculture intelligente
+            L&apos;essentiel pour piloter votre exploitation
           </h2>
           <p className="text-gray-600">
-            Pilotez votre exploitation du bout des doigts grâce à des outils
-            pensés spécifiquement pour la réalité du terrain.
+            Des outils conçus pour le terrain, accessibles depuis votre poche,
+            pour une agriculture plus sereine au quotidien.
           </p>
         </div>
 

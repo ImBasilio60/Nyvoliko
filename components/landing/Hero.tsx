@@ -1,7 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
 import {
   Leaf,
-  PlayCircle,
   TrendingDown,
   Target,
   TrendingUp,
@@ -33,20 +33,13 @@ export default function Hero() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <a
-                href="#"
+              <Link
+                href="/fonctionnalites"
                 className="flex justify-center items-center gap-2 bg-brand-primary hover:bg-green-700 text-white px-8 py-3.5 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-glow hover:-translate-y-1"
               >
-                Commencer maintenant
+                En savoir plus
                 <Leaf className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="flex justify-center items-center gap-2 bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 px-8 py-3.5 rounded-xl font-semibold transition-all duration-300 shadow-sm hover:shadow-md"
-              >
-                <PlayCircle className="w-5 h-5 text-brand-primary" />
-                Voir la démo
-              </a>
+              </Link>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -54,27 +47,27 @@ export default function Hero() {
                 <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-brand-primary">
                   <TrendingDown className="w-5 h-5" />
                 </div>
-                <h3 className="font-semibold text-sm">Réduisez vos dépenses</h3>
+                <h3 className="font-semibold text-sm">Planification simplifiée</h3>
                 <p className="text-xs text-gray-500">
-                  grâce à une meilleure planification
+                  évitez les erreurs et le gaspillage
                 </p>
               </div>
               <div className="flex flex-col gap-2">
                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-brand-accent">
                   <Target className="w-5 h-5" />
                 </div>
-                <h3 className="font-semibold text-sm">Optimisez vos actions</h3>
+                <h3 className="font-semibold text-sm">Assistance météo</h3>
                 <p className="text-xs text-gray-500">
-                  selon la météo et vos cultures
+                  alertes locales pour chaque intervention
                 </p>
               </div>
               <div className="flex flex-col gap-2">
                 <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center text-brand-highlight">
                   <TrendingUp className="w-5 h-5" />
                 </div>
-                <h3 className="font-semibold text-sm">Augmentez vos revenus</h3>
+                <h3 className="font-semibold text-sm">Données claires</h3>
                 <p className="text-xs text-gray-500">
-                  avec des décisions basées sur les données
+                  des décisions agricoles éclairées
                 </p>
               </div>
             </div>
